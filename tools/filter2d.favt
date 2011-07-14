@@ -1,0 +1,78 @@
+(* filter(l,k);; *)
+
+(* Produced with: *)
+(* let () = for i = 1 to 8 do *)
+(*   for j = 1 to 8 do *)
+(*     Format.printf "let d%d%d=%d%d;;" i j i j *)
+(*   done; *)
+(*   print_string "\n"; *)
+(* done;; *)
+
+let d11=11;;let d12=12;;let d13=13;;let d14=14;;let d15=15;;let d16=16;;let d17=17;;let d18=18;;
+let d21=21;;let d22=22;;let d23=23;;let d24=24;;let d25=25;;let d26=26;;let d27=27;;let d28=28;;
+let d31=31;;let d32=32;;let d33=33;;let d34=34;;let d35=35;;let d36=36;;let d37=37;;let d38=38;;
+let d41=41;;let d42=42;;let d43=43;;let d44=44;;let d45=45;;let d46=46;;let d47=47;;let d48=48;;
+let d51=51;;let d52=52;;let d53=53;;let d54=54;;let d55=55;;let d56=56;;let d57=57;;let d58=58;;
+let d61=61;;let d62=62;;let d63=63;;let d64=64;;let d65=65;;let d66=66;;let d67=67;;let d68=68;;
+let d71=71;;let d72=72;;let d73=73;;let d74=74;;let d75=75;;let d76=76;;let d77=77;;let d78=78;;
+let d81=81;;let d82=82;;let d83=83;;let d84=84;;let d85=85;;let d86=86;;let d87=87;;let d88=88;;
+
+let const img2d = 
+d11::d12::d13::d14::d15::d16::d17::d18::
+d21::d22::d23::d24::d25::d26::d27::d28::
+d31::d32::d33::d34::d35::d36::d37::d38::
+d41::d42::d43::d44::d45::d46::d47::d48::
+d51::d52::d53::d54::d55::d56::d57::d58::
+d61::d62::d63::d64::d65::d66::d67::d68::
+d71::d72::d73::d74::d75::d76::d77::d78::
+d81::d82::d83::d84::d85::d86::d87::d88::[];;
+
+let f11=11;;let f12=12;;let f13=13;;
+let f21=21;;let f22=22;;let f23=23;;
+let f31=31;;let f32=32;;let f33=33;;
+
+let const f2d =
+f11::f12::f13::
+f21::f22::f23::
+f31::f32::f33::[];;
+
+(* ----------------------------------------------------------------------------- *)
+let const nth = fun nth (li:list int, e:int): int is
+		  if e = 0 then fst(li) else nth(snd(li), e-1);;
+(* ----------------------------------------------------------------------------- *)
+let const xy8x8 = fun xy8x8 (li:list int, x:int, y:int): int is
+		  if (x < 8) and (y < 8) and (x > -1) and (y > -1) then
+		    nth(li,x+y*8)
+		  else
+		    0;;
+(* ----------------------------------------------------------------------------- *)
+let const xy3x3 = fun xy3x3 (li:list int, x:int, y:int): int is
+		  if (x < 3) and (y < 3) and (x > -1) and (y > -1) then
+		    nth(li,x+y*3)
+		  else
+		    0;;
+(* ----------------------------------------------------------------------------- *)
+let const summp3x3 = fun summpx3x3 (img:list int, kern:list int, x:int, y:int): int is
+		     xy8x8(img,x,  y  ) * xy3x3(kern,1,1) +
+		     xy8x8(img,x+1,y+1) * xy3x3(kern,2,2) +
+		     xy8x8(img,x-1,y-1) * xy3x3(kern,0,0) +
+		     xy8x8(img,x+1,y  ) * xy3x3(kern,2,1) +
+		     xy8x8(img,x  ,y+1) * xy3x3(kern,1,2) +
+		     xy8x8(img,x-1,y  ) * xy3x3(kern,0,1) +
+		     xy8x8(img,x  ,y-1) * xy3x3(kern,1,0) +
+		     xy8x8(img,x-1,y+1) * xy3x3(kern,0,2) +
+		     xy8x8(img,x+1,y-1) * xy3x3(kern,2,0);;
+(* ----------------------------------------------------------------------------- *)
+let const f2d_i8x8_k3x3 = fun f2d_i8x8_k3x3 (img:list int, kern: list int, x:int, y:int): list int is
+			    if (y = 7) and (x = 7) then [] else
+			    if x = 7 then
+			      summp3x3(img, kern, x, y) :: f2d_i8x8_k3x3(img,kern,0,y+1)
+			    else
+			      summp3x3(img, kern, x, y) :: f2d_i8x8_k3x3(img,kern,x+1,y);;
+			    
+(* ----------------------------------------------------------------------------- *)
+let const filter = fun filter (li:list int, kern: list int): list int is
+		  if length(li) < length(kern) then [] else
+		  summp(li, kern, length(kern) - 1) :: filter(snd(li),kern);;
+(* ----------------------------------------------------------------------------- *)
+out(f2d_i8x8_k3x3(img2d,f2d,0,0));;

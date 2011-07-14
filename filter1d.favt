@@ -1,0 +1,26 @@
+let d1 = 1;; let d2 = 2;; let d3 = 3;; let d4 = 4;; let d5 = 5;; let f1 = 6;; let f2 = 7;;
+let const l = d1::d2::d3::d4::d5::[];;
+let const k = f1::f2::[];;
+
+(* ----------------------------------------------------------------------------- *)
+let const sum = fun sum (li:list int): int is
+                if snd(li) = [] then fst(li) else fst(li) + sum(snd(li));;
+(* ----------------------------------------------------------------------------- *)
+let const pluss = fun pluss (li:list int, pl:int): list int is
+                  if fst(li) = [] then [] else (fst(li) + pl) :: pluss(snd(li),pl);;
+(* ----------------------------------------------------------------------------- *)
+let const nth = fun nth (li:list int, e:int): int is
+		  if e = 0 then fst(li) else nth(snd(li), e-1);;
+(* ----------------------------------------------------------------------------- *)
+let const length = fun length (li:list int): int is
+		  if fst(li)=[] then 0 else 1 + length(snd(li));;
+(* ----------------------------------------------------------------------------- *)
+let const summp = fun summp (lx:list int, ly:list int, i:int): int is
+		  if i < 0 then 0 else nth(lx,i)*nth(ly,i) - summp(lx,ly,i-1);;
+(* ----------------------------------------------------------------------------- *)
+let const filter = fun filter (li:list int, kern: list int): list int is
+		  if length(li) < length(kern) then [] else
+		  summp(li, kern, length(kern) - 1) :: filter(snd(li),kern);;
+(* ----------------------------------------------------------------------------- *)
+
+out(filter(l,k));;

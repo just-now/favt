@@ -1,0 +1,57 @@
+let d1 = 1;; let d2 = 2;; let d3 = 3;; let d4 = 4;;
+let d5 = 5;; let d6 = 6;; let d7 = 7;; let d8 = 8;;
+let const x = d1::d2::d3::d4::d5::d6::d7::d8::[];;
+
+let W02 = 1;;
+let W04 = 2;;
+let W14 = 3;;
+let W08 = 4;;
+let W18 = 5;;
+let W28 = 6;;
+let W38 = 7;;
+let const W8L = W08::W18::W28::W38::[];;
+
+(* ----------------------------------------------------------------------------- *)
+let const nth = fun nth (li:list int, e:int): int is
+    if e = 0 then fst(li) else nth(snd(li), e-1);;
+(* ----------------------------------------------------------------------------- *)
+let const mult4 = fun mult4 (xs:list int, ys:list int): list int is
+    (nth(xs,0) * nth(ys,0)) :: (nth(xs,1) * nth(ys,1)) ::
+    (nth(xs,2) * nth(ys,2)) :: (nth(xs,3) * nth(ys,3)) :: [];;
+(* ----------------------------------------------------------------------------- *)
+let const plus4 = fun plus4 (xs:list int, ys:list int): list int is
+    (nth(xs,0) + nth(ys,0)) :: (nth(xs,1) + nth(ys,1)) ::
+    (nth(xs,2) + nth(ys,2)) :: (nth(xs,3) + nth(ys,3)) :: [];;
+(* ----------------------------------------------------------------------------- *)
+let const minus4 = fun minus4 (xs:list int, ys:list int): list int is
+    (nth(xs,0) - nth(ys,0)) :: (nth(xs,1) - nth(ys,1)) ::
+    (nth(xs,2) - nth(ys,2)) :: (nth(xs,3) - nth(ys,3)) :: [];;
+(* ----------------------------------------------------------------------------- *)
+let const low4from8 = fun low4from8 (xs:list int): list int is
+    (nth(xs,0))::(nth(xs,1))::(nth(xs,2))::(nth(xs,3))::[];;
+(* ----------------------------------------------------------------------------- *)
+let const up4from8 = fun low4from8 (xs:list int): list int is
+    (nth(xs,4))::(nth(xs,5))::(nth(xs,6))::(nth(xs,7))::[];;
+(* ----------------------------------------------------------------------------- *)
+let const append4x4 = fun append4x4 (xs:list int, ys:list int): list int is
+    nth(xs,0)::nth(xs,1)::nth(xs,2)::nth(xs,3)::
+    nth(ys,0)::nth(ys,1)::nth(ys,2)::nth(ys,3)::[];;
+(* ----------------------------------------------------------------------------- *)
+let const dft4 = fun dft4 (xs:list int): list int is
+    let va = W02 * nth(xs,2) in
+    let vb = W02 * nth(xs,3) in
+    let vc = W04 * (nth(xs,1) + vb) in
+    let vd = W14 * (nth(xs,1) - vb) in
+    let ve = nth(xs,0) + va in
+    let vf = nth(xs,0) - va in
+    (ve + vc) ::
+    (vf + vd) :: 
+    (ve - vc) :: 
+    (vf - vd) :: [];;
+(* ----------------------------------------------------------------------------- *)
+let const dft8 = fun dft8 (xs:list int): list int is
+    append4x4(plus4 (dft4(low4from8(xs)), mult4(dft4(up4from8(xs)), W8L)),
+              minus4(dft4(low4from8(xs)), mult4(dft4(up4from8(xs)), W8L)));;
+(* ----------------------------------------------------------------------------- *)
+
+out(dft8(x));;
