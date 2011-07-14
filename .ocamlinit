@@ -1,0 +1,6 @@
+#use "topfind";;
+#require "extlib";;
+#require "ocamlgraph";;
+#require "graphics";;
+#require "unix";;
+#require "batteries";;

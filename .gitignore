@@ -1,0 +1,6 @@
+*.cmo
+*.cmi
+*.log
+*.ps
+*.graphml
+*.dot
