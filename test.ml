@@ -14,6 +14,7 @@ open Partition
 module LG = Lgraph
 module ES = BatString
 module BL = BatList.Exceptionless
+module P = Partition
 exception Toplevel
 (* ------------ Utils ------------------------------ *)
 
@@ -215,12 +216,19 @@ let files = ref [] in Arg.parse [("-o", Arg.Set_string outfile, "output file")]
   let ex' = replaceDuplicates ex (findAstDuplicates ex)  in
   let ii = LG.makeGraph gg 1 ex' in
   let _ = makeSubGraphsAll gg ldefs ii in
-  LG.outp gg !outfile
+  (* LG.outp gg !outfile *)
+  let out() = output gg "metis.txt" !outfile in
+  let in_ () = metis_parts "metis.txt.part.4" in
+  let _ = out() in
+  let _ = Sys.command ("./tools/metis/kmetis " ^ "metis.txt " ^ (soi 4)) in
+  let parts = in_() in
+  out_parts (format_parts parts) "metis.groups"
+
 
 (* ------------------------------------------------------------- *)
 
 (* let prog_name = "dft.favt" *)
-(* let prog_list = let fd = open_in prog_name in Std.input_list fd *)
+(* let prog_list = let fd = open_in prog_name in BatStd.input_list fd *)
 (* let prog = List.fold_left (^) "" (List.filter (not % iscomment) prog_list) *)
 (* let cmds = Parser.toplevel Lexer.token (Lexing.from_string prog) *)
 (* (\* let defs = List.filter isADef cmds in *\) *)
@@ -237,7 +245,7 @@ let files = ref [] in Arg.parse [("-o", Arg.Set_string outfile, "output file")]
 (* let ii = LG.makeGraph gg 1 ex' *)
 (* let jj = makeSubGraphsAll gg ldefs ii *)
 (* let kk = LG.outp gg "xxx.dot" *)
-(* module P = Partition;; *)
+
 (* let out() = output gg "metis.txt" "xxx.dot" *)
 (* let in_ () = metis_parts "metis.txt.part.4" *)
 (* let newgg = out();; *)

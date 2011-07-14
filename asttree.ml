@@ -1,6 +1,9 @@
 open Utils
 open Syntax
 exception AstTreeException of  string
+let ex_report f e = 
+  raise (AstTreeException ("subtrees _" ^ " with dump: " ^ (BatStd.dump e)))
+
 (* tree vs tree diff function *)
 let rec diff t1 t2 = match (t1,t2) with
   Nil, Nil -> true
@@ -21,7 +24,7 @@ let rec diff t1 t2 = match (t1,t2) with
 | (Plus  (a1, b1), _)-> false
 | (Minus (a1, b1), _) ->false
 | (Cons(a1,b1), _) ->false
-|  _ -> raise (AstTreeException "_")
+|  e -> ex_report "diff(): " e
 
 (*produce all subtrees of given tree *)
 let rec subtrees t1 acc = match t1 with
@@ -34,7 +37,7 @@ let rec subtrees t1 acc = match t1 with
 | Plus  (a1, a2) as e -> subtrees a1 (subtrees a2 (acc@ [e]))
 | Minus (a1, a2) as e -> subtrees a1 (subtrees a2 (acc@ [e]))
 | Cons(a1, a2) as e   -> subtrees a1 (subtrees a2 (acc@ [e]))
-| _ -> raise (AstTreeException "_")
+| e -> ex_report "subtrees" e
 
 (* replace 'r' in 't' with 'Var v' *)
 let rec replace_sub t r v =
@@ -48,7 +51,7 @@ match t with
 | Plus  (a1, a2) as e -> if diff e r then v else Plus (replace_sub a1 r v, replace_sub a2 r v)
 | Minus (a1, a2) as e -> if diff e r then v else Minus(replace_sub a1 r v, replace_sub a2 r v)
 | Cons(a1, a2)   as e -> if diff e r then v else Cons (replace_sub a1 r v, replace_sub a2 r v)
-| _ -> raise (AstTreeException "_")
+| e -> ex_report "replace_sub(): " e
   
 
 (* compare lists of subtrees: equal trees are marked 

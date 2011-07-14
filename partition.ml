@@ -35,6 +35,7 @@ let metisadj g =
     let s = G.succ g v in
     let ids = L.map vids s in
     let wg = if L.length s > 1 then 1000 else 1 in
+    (* let wg = 1 in *)
     itrlw wg ids
   in
   let pred v = 
