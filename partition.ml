@@ -45,13 +45,15 @@ let metisadj g =
     (* let wg = 1 in *)
     itrlw wg ids
   in
+  let vertw v = [1]
+  in
   let iteration v = 
-    l := (vids v, L.concat [succ v; pred v]) :: !l in
+    l := (vids v, L.concat [vertw v; succ v; pred v]) :: !l in
   G.iter_vertex iteration g;
   sort !l
 
 let out_metis vc ec adj outf =
-  let head  = (soi vc) ^ " " ^ (soi ec) ^ " 1\n" in
+  let head  = (soi vc) ^ " " ^ (soi ec) ^ " 11\n" in
   let body1 = L.map (fun (_,l)-> interleave " " (L.map soi l)) adj in
   let body2 = L.concat (interleave ["\n"] body1) in
   let body  = String.concat "" body2 in

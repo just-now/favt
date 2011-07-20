@@ -110,6 +110,24 @@ let mklgraph () = {
 
 let outp g f = output_graph g.graph f
 
+(* Produce vertex list from given graph *)
+let vlist g = 
+  let g' = g.graph in 
+  let l = ref [] in
+  G.iter_vertex (fun v -> l:= v :: !l) g';
+  !l
+
+let elist' g =
+  let l = ref [] in
+  G.iter_edges (fun v1 v2 -> l := (v1,v2)::!l) g;
+  !l
+
+let elist g =
+  let g' = g.graph in
+  elist' g'
+
+
+
 let addv g lbl =
   let v = G.V.create lbl in
   H.add g.id2v (vids lbl) v;
@@ -125,6 +143,13 @@ let succv g v =
 
 let rme g e =
   G.remove_edge_e g.graph e
+
+let rmev' g v1 v2 =
+  G.remove_edge g v1 v2
+
+let rmev g' v1 v2 =
+  let g = g'.graph in
+  G.remove_edge g v1 v2
 
 let rmv g v = 
   G.remove_vertex g.graph (H.find g.id2v v)

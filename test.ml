@@ -1,16 +1,17 @@
-(* #load "parser.cmo" *)
-(* #load "lexer.cmo" *)
-(* #load "utils.cmo" *)
-(* #load "syntax.cmo" *)
-(* #load "asttree.cmo" *)
-(* #load "lgraph.cmo" *)
-(* #load "partition.cmo" *)
+#load "parser.cmo"
+#load "lexer.cmo"
+#load "utils.cmo"
+#load "syntax.cmo"
+#load "asttree.cmo"
+#load "lgraph.cmo"
+#load "partition.cmo"
 
 open Utils
 open Syntax
 open Asttree
 open Lgraph
 open Partition
+open BatStd
 module LG = Lgraph
 module ES = BatString
 module BL = BatList.Exceptionless
@@ -194,62 +195,77 @@ let rec replaceDuplicates ex dup =
     ldefs := !ldefs @ [(varn,dupl)]; replaceDuplicates ex' (List.tl dup)
 
 (* ------------ Main and stuff ------------------------------ *)
-let main =
-let outfile = ref "" in
-let files = ref [] in Arg.parse [("-o", Arg.Set_string outfile, "output file")]
-				(fun f -> files := f :: !files)
-				"Usage: ./test [-o file] [file]"; ldefs := [];
-  let prog_name = List.hd !files in
-  let prog_list = let fd = open_in prog_name in BatStd.input_list fd in
-  let prog = List.fold_left (^) "" (List.filter (not % iscomment) prog_list) in
-  let cmds = Parser.toplevel Lexer.token (Lexing.from_string prog) in
-  (* let defs = List.filter isADef cmds in *)
-  (* let defs = List.map (fun x -> match x with Syntax.Def (a,b) -> (a,b) | _ -> raise Toplevel) defs in *)
-  let cdefs = List.filter isACDef cmds in
-  let cdefs = List.map (fun x -> match x with Syntax.CDef (a,b) -> (a,b) | _ -> raise Toplevel) cdefs in
-  let exps = List.filter isAnExp cmds in
-  let exps = List.map (fun x -> match x with Syntax.Expr (e) -> e | _ -> raise Toplevel) exps in
-  let out = List.map (Syntax.subst cdefs) exps in
-  let e1 = eval1 cdefs (List.hd out) in
-  let ex = compileAST e1 cdefs in
-  let gg = LG.mklgraph() in
-  let ex' = replaceDuplicates ex (findAstDuplicates ex)  in
-  let ii = LG.makeGraph gg 1 ex' in
-  let _ = makeSubGraphsAll gg ldefs ii in
-  (* LG.outp gg !outfile *)
-  let out() = output gg "metis.txt" !outfile in
-  let in_ () = metis_parts "metis.txt.part.4" in
-  let _ = out() in
-  let _ = Sys.command ("./tools/metis/kmetis " ^ "metis.txt " ^ (soi 4)) in
-  let parts = in_() in
-  out_parts (format_parts parts) "metis.groups"
+(* let main = *)
+(* let outfile = ref "" in *)
+(* let files = ref [] in Arg.parse [("-o", Arg.Set_string outfile, "output file")] *)
+(* 				(fun f -> files := f :: !files) *)
+(* 				"Usage: ./test [-o file] [file]"; ldefs := []; *)
+(*   let prog_name = List.hd !files in *)
+(*   let prog_list = let fd = open_in prog_name in BatStd.input_list fd in *)
+(*   let prog = List.fold_left (^) "" (List.filter (not % iscomment) prog_list) in *)
+(*   let cmds = Parser.toplevel Lexer.token (Lexing.from_string prog) in *)
+(*   (\* let defs = List.filter isADef cmds in *\) *)
+(*   (\* let defs = List.map (fun x -> match x with Syntax.Def (a,b) -> (a,b) | _ -> raise Toplevel) defs in *\) *)
+(*   let cdefs = List.filter isACDef cmds in *)
+(*   let cdefs = List.map (fun x -> match x with Syntax.CDef (a,b) -> (a,b) | _ -> raise Toplevel) cdefs in *)
+(*   let exps = List.filter isAnExp cmds in *)
+(*   let exps = List.map (fun x -> match x with Syntax.Expr (e) -> e | _ -> raise Toplevel) exps in *)
+(*   let out = List.map (Syntax.subst cdefs) exps in *)
+(*   let e1 = eval1 cdefs (List.hd out) in *)
+(*   let ex = compileAST e1 cdefs in *)
+(*   let gg = LG.mklgraph() in *)
+(*   let ex' = replaceDuplicates ex (findAstDuplicates ex)  in *)
+(*   let ii = LG.makeGraph gg 1 ex' in *)
+(*   let _ = makeSubGraphsAll gg ldefs ii in *)
+(*   (\* LG.outp gg !outfile *\) *)
+(*   let out() = output gg "metis.txt" !outfile in *)
+(*   let in_ () = metis_parts "metis.txt.part.4" in *)
+(*   let _ = out() in *)
+(*   let _ = Sys.command ("./tools/metis/kmetis " ^ "metis.txt " ^ (soi 4)) in *)
+(*   let parts = in_() in *)
+(*   out_parts (format_parts parts) "metis.groups" *)
 
 
 (* ------------------------------------------------------------- *)
 
-(* let prog_name = "dft.favt" *)
-(* let prog_list = let fd = open_in prog_name in BatStd.input_list fd *)
-(* let prog = List.fold_left (^) "" (List.filter (not % iscomment) prog_list) *)
-(* let cmds = Parser.toplevel Lexer.token (Lexing.from_string prog) *)
-(* (\* let defs = List.filter isADef cmds in *\) *)
-(* (\* let defs = List.map (fun x -> match x with Syntax.Def (a,b) -> (a,b) | _ -> raise Toplevel) defs in *\) *)
-(* let cdefs = List.filter isACDef cmds *)
-(* let cdefs = List.map (fun x -> match x with Syntax.CDef (a,b) -> (a,b) | _ -> raise Toplevel) cdefs *)
-(* let exps = List.filter isAnExp cmds *)
-(* let exps = List.map (fun x -> match x with Syntax.Expr (e) -> e | _ -> raise Toplevel) exps *)
-(* let out = List.map (Syntax.subst cdefs) exps *)
-(* let e1 = eval1 cdefs (List.hd out) *)
-(* let ex = compileAST e1 cdefs *)
-(* let gg = LG.mklgraph() *)
-(* let ex' = replaceDuplicates ex (findAstDuplicates ex) *)
-(* let ii = LG.makeGraph gg 1 ex' *)
-(* let jj = makeSubGraphsAll gg ldefs ii *)
-(* let kk = LG.outp gg "xxx.dot" *)
+let prog_name = "dft.favt"
+let prog_list = let fd = open_in prog_name in BatStd.input_list fd
+let prog = List.fold_left (^) "" (List.filter (not % iscomment) prog_list)
+let cmds = Parser.toplevel Lexer.token (Lexing.from_string prog)
+(* let defs = List.filter isADef cmds in *)
+(* let defs = List.map (fun x -> match x with Syntax.Def (a,b) -> (a,b) | _ -> raise Toplevel) defs in *)
+let cdefs = List.filter isACDef cmds
+let cdefs = List.map (fun x -> match x with Syntax.CDef (a,b) -> (a,b) | _ -> raise Toplevel) cdefs
+let exps = List.filter isAnExp cmds
+let exps = List.map (fun x -> match x with Syntax.Expr (e) -> e | _ -> raise Toplevel) exps
+let out = List.map (Syntax.subst cdefs) exps
+let e1 = eval1 cdefs (List.hd out)
+let ex = compileAST e1 cdefs
+let gg = LG.mklgraph()
+let ex' = replaceDuplicates ex (findAstDuplicates ex)
+let ii = LG.makeGraph gg 1 ex'
+let jj = makeSubGraphsAll gg ldefs ii
+let kk = LG.outp gg "out.dot"
 
-(* let out() = output gg "metis.txt" "xxx.dot" *)
-(* let in_ () = metis_parts "metis.txt.part.4" *)
-(* let newgg = out();; *)
-(* let rc = Sys.command ("./tools/metis/kmetis " ^ "metis.txt " ^ (soi 4));; *)
-(* let parts = in_();; *)
-(* let _ = out_parts (format_parts parts) "metis.groups";; *)
+let out() = output gg "metis.txt" "out.dot"
+let in_ () = metis_parts "metis.txt.part.4"
+let newgg = out();;
+let rc = Sys.command ("./tools/metis/kmetis " ^ "metis.txt " ^ (soi 4));;
+let parts = in_();;
+let _ = out_parts (format_parts parts) "metis.groups";;
+
+let match_cuts parts' (v1,v2)  =
+  let parts = L.map (fun (x,y) -> y,x) parts' in
+  let g1 = L.assoc v1 parts
+  and g2 = L.assoc v2 parts in
+  g1 = g2;;
+
+let eidl g =
+  L.map (fun (x,y) -> vids x, vids y) (elist' g);;
+
+let crossing_edges g parts = 
+  L.filter (not -| match_cuts parts) (eidl g);;
+
+let crossing =
+  crossing_edges newgg parts;;
 
