@@ -17,3 +17,16 @@ let rec zipWith2 f l1 l2 = match (l1,l2) with
 
 (* hashtable to list *)
 let h2l h = Hashtbl.fold (fun k v acc -> (k, v) :: acc) h []
+
+let lxy2yx l = List.map (fun (x,y) -> (y,x)) l
+
+let save_struct s fn =
+  let o = BatPervasives.open_out fn in
+  BatPervasives.output_value o s;
+  BatPervasives.close_out o
+
+let load_struct fn =
+  let i = BatPervasives.open_in fn in
+  let v = BatPervasives.input_value i in
+  BatPervasives.close_in i;
+  v

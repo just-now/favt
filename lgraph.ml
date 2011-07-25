@@ -109,13 +109,17 @@ let mklgraph () = {
 }
 
 let outp g f = output_graph g.graph f
+let outp' g f = output_graph g f
 
 (* Produce vertex list from given graph *)
-let vlist g = 
-  let g' = g.graph in 
+let vlist' g' = 
   let l = ref [] in
   G.iter_vertex (fun v -> l:= v :: !l) g';
   !l
+
+let vlist g = 
+  let g' = g.graph in 
+  vlist' g'
 
 let elist' g =
   let l = ref [] in
@@ -126,17 +130,22 @@ let elist g =
   let g' = g.graph in
   elist' g'
 
-
-
 let addv g lbl =
   let v = G.V.create lbl in
   H.add g.id2v (vids lbl) v;
   H.add g.id2l (vids lbl) lbl;
   G.add_vertex g.graph v
 
+let addv' g lbl =
+  let v = G.V.create lbl in
+  G.add_vertex g v
+
 let adde g v1 v2 =
   G.add_edge_e g.graph
     (G.E.create (H.find g.id2v v1) 1 (H.find g.id2v v2))
+
+let adde' g v1 v2 =
+  G.add_edge_e g (G.E.create v1 1 v2)
 
 let succv g v =
   G.succ g.graph (H.find g.id2v v)
@@ -144,20 +153,36 @@ let succv g v =
 let rme g e =
   G.remove_edge_e g.graph e
 
-let rmev' g v1 v2 =
-  G.remove_edge g v1 v2
-
 let rmev g' v1 v2 =
   let g = g'.graph in
+  G.remove_edge g v1 v2
+
+let rmev' g v1 v2 =
   G.remove_edge g v1 v2
 
 let rmv g v = 
   G.remove_vertex g.graph (H.find g.id2v v)
 
+let rmv' g v = 
+  let vid = ref (PUnOp (UnOut, -1)) in
+  G.iter_vertex (fun v' -> if vids v' = v then vid := v') g;
+  G.remove_vertex g !vid
+
+let id2v' g id =
+  let l = vlist' g in
+  let vx = L.find (fun v -> vids v = id) l in
+  vx
+
+let deg' g v =
+  (G.out_degree g v) +
+  (G.in_degree g v)
+
 let gsp g v1 v2 = Dij.shortest_path g.graph
     (H.find g.id2v v1)
     (H.find g.id2v v2)
-
+    
+let gsp' g v1 v2 = Dij.shortest_path g v1 v2
+ 
 (* create graph of grid *)
 let mkGrid g w h =
   let adde' g v1 v2 = adde g (vids v1) (vids v2) in

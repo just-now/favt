@@ -56,7 +56,8 @@ colors[47]=mediumorchid
     cat metis.groups | (while read line
 	do echo $line;
 	echo iteration $j, ${colors[$j]}
-	for i in $line; do sed -i -r 's/(^[ ]+\"\('$i'\)[^ ]*);/\1 [color='${colors[$j]}'];/' out.dot; done
+	for i in $line; do sed -i -r 's/(^[ ]+\"\('$i'\)[^ ]*);/\1 [color='${colors[$j]}'];/' $1; done
 	let "j=j+1"
 	done)
 # fi
+
